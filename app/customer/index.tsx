@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -130,7 +131,10 @@ export default function CustomerPanel() {
                     <Text className="text-indigo-600 font-bold">৳{product.price}</Text>
                     <TouchableOpacity
                       className="bg-indigo-100 p-2 rounded-full"
-                      onPress={() => addToCart(product)}
+                      onPress={() => {
+                        addToCart(product);
+                        Alert.alert("Success", "Product added to cart!");
+                      }}
                     >
                       <Feather name="shopping-cart" size={16} color="#4f46e5" />
                     </TouchableOpacity>

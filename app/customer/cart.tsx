@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useCart } from "../../contexts/CartContext";
 
 export default function CartScreen() {
@@ -14,38 +14,41 @@ export default function CartScreen() {
       Alert.alert("Cart is empty", "Add some products to your cart before checking out.");
       return;
     }
-    // Here you would send cartItems to your backend to create an order
     Alert.alert("Checkout", "Order placed successfully!");
     clearCart();
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafb", padding: 16 }}>
-      <Text style={styles.heading}>Your Cart</Text>
+      <Text style={styles.heading}>View Cart</Text>
       <FlatList
         data={cartItems}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 32 }}>Your cart is empty.</Text>}
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
-            <View style={{ flex: 1 }}>
+            <Image source={{ uri: item.image_url }} style={styles.itemImage} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.itemName}>{item.name}</Text>
               <Text style={styles.itemPrice}>৳{item.price}</Text>
             </View>
             <View style={styles.qtyContainer}>
-              <Text>Qty:</Text>
-              <TextInput
-                style={styles.qtyInput}
-                keyboardType="numeric"
-                value={item.quantity?.toString() || "1"}
-                onChangeText={text => {
-                  const qty = parseInt(text) || 1;
-                  updateQuantity(item.id, qty);
-                }}
-              />
+              <TouchableOpacity
+                style={styles.qtyButton}
+                onPress={() => updateQuantity(item.id, (item.quantity || 1) - 1)}
+              >
+                <Text style={styles.qtyButtonText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.qtyText}>{item.quantity || 1}</Text>
+              <TouchableOpacity
+                style={styles.qtyButton}
+                onPress={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
+              >
+                <Text style={styles.qtyButtonText}>+</Text>
+              </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={() => removeFromCart(item.id)}>
-              <Text style={styles.removeBtn}>Remove</Text>
+              <Text style={styles.removeBtn}>🗑️</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -76,6 +79,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 1,
   },
+  itemImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
   itemName: {
     fontWeight: "bold",
     fontSize: 16,
@@ -90,19 +98,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 12,
   },
-  qtyInput: {
+  qtyButton: {
     borderWidth: 1,
     borderColor: "#d1d5db",
     borderRadius: 4,
-    width: 40,
+    width: 32,
     height: 32,
-    marginLeft: 6,
-    textAlign: "center",
-    padding: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  qtyButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  qtyText: {
+    marginHorizontal: 8,
+    fontSize: 16,
+    fontWeight: "bold",
   },
   removeBtn: {
+    fontSize: 18,
     color: "red",
-    fontWeight: "bold",
     marginLeft: 8,
   },
   footer: {
