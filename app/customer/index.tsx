@@ -1,4 +1,5 @@
 import { Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -22,6 +23,7 @@ type Product = {
   stock: number;
   image_url?: string;
 };
+
 export default function CustomerPanel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ export default function CustomerPanel() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("http://192.168.151.192:8000/get-products.php");
+      const res = await fetch(`http://192.168.39.192:8000/get-products.php`);
       const data = await res.json();
       if (Array.isArray(data.products)) {
         setProducts(data.products);
@@ -65,6 +67,11 @@ export default function CustomerPanel() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleSignOut = async () => {
+    await AsyncStorage.removeItem("userId");
+    router.replace("/auth/customer-login"); // or your login route
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50 mt-10">
       {/* Header with Search and Cart */}
@@ -74,7 +81,9 @@ export default function CustomerPanel() {
             <Image source={require("../../assets/images/qbox logo.png")} className="w-10 h-10 mr-3" />
             <Text className="text-xl font-bold text-gray-800">Qbox Inventory</Text>
           </View>
-          
+          <TouchableOpacity onPress={handleSignOut} className="bg-red-100 px-3 py-1 rounded">
+            <Text className="text-red-600 font-semibold">Sign Out</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Search Input */}
@@ -115,6 +124,10 @@ export default function CustomerPanel() {
                 key={product.id}
                 className="bg-white rounded-lg p-3 mb-3 flex-row shadow-sm"
                 activeOpacity={0.8}
+                onPress={() => router.push({
+                  pathname: "/customer/product-details",
+                  params: { product: JSON.stringify(product) }
+                })}
               >
                 <Image
                   source={
@@ -125,7 +138,9 @@ export default function CustomerPanel() {
                   className="w-16 h-16 rounded-lg"
                 />
                 <View className="ml-3 flex-1">
-                  <Text className="text-gray-800 font-medium">{product.name}</Text>
+                  <View className="flex-row justify-between items-center">
+                    <Text className="text-gray-800 font-medium">{product.name}</Text>
+                  </View>
                   <Text className="text-gray-500 text-sm mt-1">{product.category || "General"}</Text>
                   <View className="flex-row justify-between items-center mt-2">
                     <Text className="text-indigo-600 font-bold">৳{product.price}</Text>
@@ -153,13 +168,10 @@ export default function CustomerPanel() {
           <Text className="text-indigo-600 text-xs mt-1">Home</Text>
         </TouchableOpacity>
         <TouchableOpacity className="items-center" onPress={() => router.push("/customer/cart")}>
-          <FontAwesome name="shopping-cart" size={22} color="#4f46e5" />
+          <FontAwesome name="shopping-cart" size={24} color="#4f46e5" />
+          <Text className="text-indigo-600 text-xs mt-1">Cart</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <Feather name="heart" size={24} color="#9ca3af" />
-          <Text className="text-gray-400 text-xs mt-1">Favorites</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="items-center">
+        <TouchableOpacity className="items-center" onPress={() => router.push("/customer/profile")}>
           <Feather name="user" size={24} color="#9ca3af" />
           <Text className="text-gray-400 text-xs mt-1">Profile</Text>
         </TouchableOpacity>

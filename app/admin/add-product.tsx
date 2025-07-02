@@ -59,7 +59,7 @@ export default function AddProduct() {
     }
 
     try {
-      const response = await fetch("http://192.168.151.192:8000/add-product.php", {
+      const response = await fetch("http://192.168.39.192:8000/add-product.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

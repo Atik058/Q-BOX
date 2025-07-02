@@ -20,7 +20,7 @@ export default function ProductScreen() {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch("http://192.168.151.192:8000/get-products.php"); // Update with your PHP API
+            const res = await fetch("http://192.168.39.192:8000/get-products.php"); // Update with your PHP API
             const data = await res.json();
             if (Array.isArray(data.products)) {
                 setProducts(data.products);

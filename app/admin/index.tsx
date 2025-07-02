@@ -9,7 +9,7 @@ export default function AdminPanel() {
   useEffect(() => {
     const fetchProductCount = async () => {
       try {
-        const res = await fetch("http://192.168.151.192:8000/get-product-count.php");
+        const res = await fetch("http://192.168.39.192:8000/get-product-count.php");
         const data = await res.json();
         setTotalProducts(data.total);
       } catch (err) {
@@ -28,7 +28,7 @@ export default function AdminPanel() {
 
   const quickActions = [
     { title: "Add Product", icon: "plus", screen: "add-product", color: "bg-indigo-500" },
-    { title: "Manage Users", icon: "users", screen: "manage-users", color: "bg-emerald-500" },
+    { title: "Manage Order", icon: "shopping-cart", screen: "manage-users", color: "bg-emerald-500" }, // Changed text and icon
     { title: "Generate Report", icon: "file-text", screen: "reports", color: "bg-amber-500" },
     { title: "Settings", icon: "settings", screen: "settings", color: "bg-gray-500" },
   ];
@@ -68,7 +68,17 @@ export default function AdminPanel() {
         {/* Stats Cards */}
         <View className="flex-row flex-wrap justify-between px-5 mt-5">
           {stats.map((stat, index) => (
-            <View key={index} className={`w-[48%] p-4 mb-4 ${stat.color} rounded-lg`} >
+            <TouchableOpacity
+              key={index}
+              className={`w-[48%] p-4 mb-4 ${stat.color} rounded-lg`}
+              activeOpacity={0.8}
+              onPress={() => {
+                // Remove routing from "Today's Orders"
+                // if (stat.title === "Today's Orders") {
+                //   router.push("/admin/checkouts");
+                // }
+              }}
+            >
               <View className="flex-row justify-between items-center">
                 <View>
                   <Text className="text-gray-500 text-sm">{stat.title}</Text>
@@ -76,7 +86,7 @@ export default function AdminPanel() {
                 </View>
                 <FontAwesome5 name={stat.icon} size={24} color={stat.textColor.split('text-')[1] + "00"} />
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -90,15 +100,16 @@ export default function AdminPanel() {
                 className={`w-[48%] p-4 mb-4 ${action.color} rounded-lg items-center justify-center`}
                 activeOpacity={0.8}
                 onPress={() => {
-    if (action.screen === "add-product") {
-      router.push("/admin/add-product");
-    }
-    // You can add more conditions here if you implement those screens later:
-    // else if (action.screen === "manage-users") {
-    //   router.push("/manage-users");
-    // }
-  }}
-
+                  if (action.screen === "add-product") {
+                    router.push("/admin/add-product");
+                  } else if (action.screen === "manage-users") {
+                    router.push("/admin/checkouts"); // Route to checkouts from Manage Users
+                  }
+                  // You can add more conditions here if you implement those screens later:
+                  // else if (action.screen === "reports") {
+                  //   router.push("/admin/reports");
+                  // }
+                }}
               >
                 <Feather name={action.icon as any} size={24} color="white" />
                 <Text className="text-white font-medium mt-2 text-center">{action.title}</Text>

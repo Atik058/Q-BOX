@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
 import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useCart } from "../../contexts/CartContext";
@@ -9,13 +10,45 @@ export default function CartScreen() {
     return cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cartItems.length === 0) {
       Alert.alert("Cart is empty", "Add some products to your cart before checking out.");
       return;
     }
-    Alert.alert("Checkout", "Order placed successfully!");
-    clearCart();
+
+    // Check stock for each item
+    const unavailable = cartItems.find(item => (item.quantity || 1) > item.stock);
+    if (unavailable) {
+      Alert.alert(
+        "Not Available",
+        `Only ${unavailable.stock} of "${unavailable.name}" available in stock.`
+      );
+      return;
+    }
+
+    const userId = await AsyncStorage.getItem("userId");
+    const total = getTotal();
+
+    try {
+      const response = await fetch("http://192.168.39.192:8000/checkout.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: Number(userId),
+          items: cartItems,
+          total,
+        }),
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        Alert.alert("Checkout", "Order sent! Waiting for admin approval.");
+        clearCart();
+      } else {
+        Alert.alert("Error", result.message || "Checkout failed.");
+      }
+    } catch (err) {
+      Alert.alert("Error", "Network error during checkout.");
+    }
   };
 
   return (

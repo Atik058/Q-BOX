@@ -28,7 +28,7 @@ export default function CustomerSignup() {
     }
 
     try {
-      console.log("Attempting to connect to:", 'http://192.168.151.192:8000/signup.php');
+      console.log("Attempting to connect to:", 'http://192.168.39.192:8000/signup.php');
       console.log("Sending data:", { name, email });
       
       const formData = new URLSearchParams();
@@ -38,7 +38,7 @@ export default function CustomerSignup() {
 
       console.log("Form data being sent:", formData.toString());
 
-      const response = await fetch('http://192.168.151.192:8000/signup.php', {
+      const response = await fetch('http://192.168.39.192:8000/signup.php', {
         method: 'POST',
         body: formData.toString(),
         headers: {

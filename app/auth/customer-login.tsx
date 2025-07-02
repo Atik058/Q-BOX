@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React from "react";
 import { Image, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -20,15 +21,14 @@ export default function CustomerLogin() {
     try {
       console.log("Attempting to login with:", { email });
       
-      const formData = new URLSearchParams();
+      const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
 
-      const response = await fetch('http://192.168.151.192:8000/login.php', {
+      const response = await fetch(`http://192.168.39.192:8000/login.php`, {
         method: 'POST',
-        body: formData.toString(),
+        body: formData,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
         },
       });
@@ -37,11 +37,14 @@ export default function CustomerLogin() {
       const result = await response.json();
       console.log("Response data:", result);
       
-      if (result.status === 'success') {
+      if (result.status === 'success' && result.user && result.user.id) {
         console.log("Login successful!");
+        // Store userId in AsyncStorage
+        await AsyncStorage.setItem("userId", String(result.user.id));
+        await AsyncStorage.setItem("userName", result.user.name);
+        await AsyncStorage.setItem("userEmail", result.user.email);
         router.push('/customer');
       } else {
-        console.log("Login failed:", result.message);
         alert(result.message || "Login failed. Please try again.");
       }
     } catch (error) {

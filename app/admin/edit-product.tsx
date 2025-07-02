@@ -17,7 +17,7 @@ export default function EditProduct() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await fetch(`http://192.168.151.192:8000/get-product.php?id=${id}`);
+                const res = await fetch(`http://192.168.39.192:8000/get-product.php?id=${id}`);
                 const data = await res.json();
                 setProduct(data);
                 setName(data.name);
@@ -36,7 +36,7 @@ export default function EditProduct() {
 
     const handleSave = async () => {
         try {
-            const res = await fetch("http://192.168.151.192:8000/update-product.php", {
+            const res = await fetch("http://192.168.39.192:8000/update-product.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
