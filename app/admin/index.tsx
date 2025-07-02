@@ -1,10 +1,11 @@
-import { Entypo, Feather, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Feather, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function AdminPanel() {
   const [totalProducts, setTotalProducts] = useState(0);
+  const [totalStock, setTotalStock] = useState(0);
 
   useEffect(() => {
     const fetchProductCount = async () => {
@@ -19,25 +20,31 @@ export default function AdminPanel() {
     fetchProductCount();
   }, []);
 
+  useEffect(() => {
+    const fetchTotalStock = async () => {
+      try {
+        const res = await fetch("http://192.168.39.192:8000/get-total-stock.php");
+        const data = await res.json();
+        setTotalStock(data.total_stock);
+      } catch (err) {
+        setTotalStock(0);
+      }
+    };
+    fetchTotalStock();
+  }, []);
+
   const stats = [
-    { title: "Total Items", value: totalProducts.toLocaleString(), icon: "box", color: "bg-blue-100", textColor: "text-blue-600" },
+    { title: "Total Products", value: totalStock.toLocaleString(), icon: "box", color: "bg-blue-100", textColor: "text-blue-600" },
     { title: "Low Stock", value: "42", icon: "exclamation", color: "bg-amber-100", textColor: "text-amber-600" },
-    { title: "Categories", value: "18", icon: "list-alt", color: "bg-purple-100", textColor: "text-purple-600" },
+    { title: "Total Items", value: totalProducts.toLocaleString(), icon: "list-alt", color: "bg-purple-100", textColor: "text-purple-600" },
     { title: "Today's Orders", value: "36", icon: "shopping-cart", color: "bg-green-100", textColor: "text-green-600" },
   ];
 
   const quickActions = [
     { title: "Add Product", icon: "plus", screen: "add-product", color: "bg-indigo-500" },
     { title: "Manage Order", icon: "shopping-cart", screen: "manage-users", color: "bg-emerald-500" }, // Changed text and icon
-    { title: "Generate Report", icon: "file-text", screen: "reports", color: "bg-amber-500" },
+    { title: "Generate Report", icon: "file-text", screen: "report", color: "bg-amber-500" },
     { title: "Settings", icon: "settings", screen: "settings", color: "bg-gray-500" },
-  ];
-
-  const recentActivities = [
-    { action: "Product updated", item: "Wireless Headphones", time: "10 mins ago" },
-    { action: "New order received", item: "Order #1256", time: "25 mins ago" },
-    { action: "Low stock alert", item: "Bluetooth Speakers", time: "1 hour ago" },
-    { action: "New user registered", item: "johndoe@example.com", time: "2 hours ago" },
   ];
 
   return (
@@ -74,9 +81,6 @@ export default function AdminPanel() {
               activeOpacity={0.8}
               onPress={() => {
                 // Remove routing from "Today's Orders"
-                // if (stat.title === "Today's Orders") {
-                //   router.push("/admin/checkouts");
-                // }
               }}
             >
               <View className="flex-row justify-between items-center">
@@ -103,36 +107,19 @@ export default function AdminPanel() {
                   if (action.screen === "add-product") {
                     router.push("/admin/add-product");
                   } else if (action.screen === "manage-users") {
-                    router.push("/admin/checkouts"); // Route to checkouts from Manage Users
+                    router.push("/admin/checkouts");
+                  } else if (action.screen === "report") {
+                    router.push("/admin/report"); // Route to report.tsx when Generate Report is clicked
                   }
                   // You can add more conditions here if you implement those screens later:
-                  // else if (action.screen === "reports") {
-                  //   router.push("/admin/reports");
+                  // else if (action.screen === "settings") {
+                  //   router.push("/admin/settings");
                   // }
                 }}
               >
                 <Feather name={action.icon as any} size={24} color="white" />
                 <Text className="text-white font-medium mt-2 text-center">{action.title}</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Recent Activities */}
-        <View className="mx-5 mt-2 mb-10">
-          <Text className="text-lg font-semibold text-gray-800 mb-3">Recent Activities</Text>
-          <View className="bg-white rounded-xl p-4 shadow-sm">
-            {recentActivities.map((activity, index) => (
-              <View key={index} className={`flex-row items-start pb-3 ${index !== recentActivities.length - 1 ? 'border-b border-gray-100 mb-3' : ''}`}>
-                <View className="bg-gray-100 p-2 rounded-full mr-3">
-                  <Entypo name="dot-single" size={20} color="#6b7280" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-gray-800 font-medium">{activity.action}</Text>
-                  <Text className="text-gray-500 text-sm">{activity.item}</Text>
-                  <Text className="text-gray-400 text-xs mt-1">{activity.time}</Text>
-                </View>
-              </View>
             ))}
           </View>
         </View>
